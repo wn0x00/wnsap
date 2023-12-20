@@ -5,20 +5,17 @@ class Application:
     def __init__(self):
         self.app = self._create_instance()
 
-    @property.getter
     def major_version(self):
-        self.app.MajorVersion
+        return self.app.MajorVersion
 
-    @property.getter
     def minor_version(self):
-        self.app.MinorVersion
+        return self.app.MinorVersion
 
-    @property.getter
     def connections(self):
-        self.app.Connections
+        return self.app.Connections
 
     def active_session(self):
-        pass
+        return self.app.ActiveSession
 
     def open_connection(self, description):
         self.app.OpenConnection(description)
@@ -28,3 +25,9 @@ class Application:
 
     def _create_instance(self):
         return Dispatch("SapGui.Application")
+
+
+if __name__ == "__main__":
+    app = Application()
+
+    pass

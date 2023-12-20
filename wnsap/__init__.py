@@ -4,19 +4,19 @@ import winreg
 import os
 import win32com.client
 import win32gui
-import pythoncom
 
 from functools import wraps
-from win32com.client import GetObject
 from win32gui import IsWindowEnabled, IsWindowVisible
 from win32gui import GetWindowText, IsWindow
+
+from wnsap.application import Application
 
 
 class SapGui:
     def __init__(self) -> None:
         self.session = None
         self.connection = None
-        self.application = None
+        self.application = Application().app
         self.SapGui = None
         self.get_object()
 
@@ -30,7 +30,7 @@ class SapGui:
         return inner
 
     @get_object_wrap
-    def login(self, connection, username, password, crop_id, after_login="2"):
+    def login(self, connection, username, password, crop_id="", after_login="2"):
         """登录SAP
         :param connection: str, 连接名
         :param username: str, 账号
@@ -110,21 +110,6 @@ class SapGui:
         self.session.findById("/app/con[0]/ses[0]/wnd[0]/tbar[0]/okcd").text = code
         self.session.findById("/app/con[0]/ses[0]/wnd[0]/tbar[0]/btn[0]").Press()
 
-    def launch_app(self):
-        """利用注册表打开 SAP 软件"""
-        sub_key = r"SOFTWARE\WOW6432Node\SAP\SAP Shared"
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, sub_key)
-        sap_sys_dir, _ = winreg.QueryValueEx(key, "SAPsysdir")
-        sap_path = os.path.join(sap_sys_dir, "saplogon.exe")
-        p = subprocess.Popen(sap_path, creationflags=0x01000000)
-        while True:
-            try:
-                self.SapGui = win32com.client.GetObject("SAPGUI").GetScriptingEngine
-                break
-            except:
-                time.sleep(1)
-        self.wait_sap_gui()
-
     def get_status_bar(self):
         """获取状态栏的状态"""
         return self.session.findById("wnd[0]/sbar").messageType
@@ -132,21 +117,6 @@ class SapGui:
     def get_status_bar_text(self):
         """获取状态栏的状态"""
         return self.session.findById("wnd[0]/sbar").Text
-
-    def wait_sap_gui(self):
-        """等待SAP的窗口出现"""
-        while True:
-            hWnd_list = []
-            win32gui.EnumWindows(lambda hWnd, param: param.append(hWnd), hWnd_list)
-            for hwnd in hWnd_list:
-                if (
-                    IsWindow(hwnd)
-                    and IsWindowEnabled(hwnd)
-                    and IsWindowVisible(hwnd)
-                    and "SAP Logon" in GetWindowText(hwnd)
-                ):
-                    time.sleep(1)
-                    return
 
     @get_object_wrap
     def set_checkbox(self, path, select):
@@ -278,7 +248,6 @@ class SapGui:
         return data
 
     def get_active_session(self):
-
         # 目前是通过计算得到的session, 其他方式激活窗口, 通过 application.ActiveSesiion
         conn_cout = self.application.Connections.Count
         latest_conn = self.application.Connections(conn_cout - 1)
@@ -294,3 +263,7 @@ class SapGui:
 
     def set_input(self, path, value):
         self.session.findById(path).text = value
+
+
+if __name__ == "__main__":
+    pass
