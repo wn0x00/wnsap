@@ -17,8 +17,8 @@ class Application:
     def active_session(self):
         return self.app.ActiveSession
 
-    def open_connection(self, description):
-        self.app.OpenConnection(description)
+    def open_connection(self, description, sync=True):
+        self.app.OpenConnection(description, Sync=sync)
 
     def open_connection_by_connection_string(self, connect_string):
         self.app.OpenConnectionByConnectionString(connect_string)

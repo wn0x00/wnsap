@@ -16,9 +16,9 @@ class SapGui:
     def __init__(self) -> None:
         self.session = None
         self.connection = None
-        self.application = Application().app
-        self.SapGui = None
-        self.get_object()
+        self.application: Application = Application().app
+        # self.SapGui = None
+        # self.get_object()
 
     def get_object_wrap(func):
         @wraps(func)
@@ -29,7 +29,6 @@ class SapGui:
 
         return inner
 
-    @get_object_wrap
     def login(self, connection, username, password, crop_id="", after_login="2"):
         """登录SAP
         :param connection: str, 连接名
@@ -44,12 +43,8 @@ class SapGui:
             "2": "wnd[1]/usr/radMULTI_LOGON_OPT2",
             "3": "wnd[1]/usr/radMULTI_LOGON_OPT3",
         }
-
-        if not self.connection:
-            self.connection = self.application.OpenConnection(connection, True)
-        else:
-            self.connection = self.application.Children(0)
-        # self.connection = self.application.OpenConnection(connection, True)
+        print("根据描述打开连接")
+        self.connection = self.application.OpenConnection(connection)
 
         time.sleep(2)
 
